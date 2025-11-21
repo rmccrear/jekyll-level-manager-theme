@@ -1,0 +1,148 @@
+---
+layout: default
+---
+
+<div class="lesson-home">
+  <header class="lesson-header">
+    <h1>{{ page.title }}</h1>
+    {% if page.lesson.description %}
+    <p class="lesson-description">{{ page.lesson.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="lesson-content">
+    {{ content }}
+  </div>
+
+  <div class="lesson-navigation">
+    <h2>Levels</h2>
+    {% assign collection_name = page.lesson.slug | append: '-levels' %}
+    {% assign levels_collection = site[collection_name] %}
+    {% assign sorted_levels = levels_collection | sort: 'number' %}
+    
+    {% if sorted_levels.size > 0 %}
+    <ul class="levels-list">
+      {% for level in sorted_levels %}
+      <li>
+        <a href="{{ level.url | relative_url }}">
+          <strong>Level {{ level.number }}</strong>: {{ level.subtitle }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>Levels are being generated. Please run <code>bundle exec jekyll build</code>.</p>
+    {% endif %}
+  </div>
+
+  <div class="lesson-actions">
+    <a href="{{ page.lesson.url | relative_url }}/all-levels-spa.html" class="btn btn-primary">
+      📄 View All Levels (SPA)
+    </a>
+    <a href="{{ '/' | relative_url }}" class="btn btn-secondary">
+      ← Back to All Lessons
+    </a>
+  </div>
+</div>
+
+<style>
+.lesson-home {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.lesson-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e1e4e8;
+}
+
+.lesson-description {
+  font-size: 1.1rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.lesson-content {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.lesson-navigation {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f6f8fa;
+  border-radius: 8px;
+}
+
+.lesson-navigation h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.levels-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.levels-list li {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e1e4e8;
+}
+
+.levels-list li:hover {
+  border-color: #0366d6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.levels-list a {
+  color: #0366d6;
+  text-decoration: none;
+  display: block;
+}
+
+.levels-list a:hover {
+  text-decoration: underline;
+}
+
+.lesson-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #0366d6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0256c2;
+}
+
+.btn-secondary {
+  background-color: #f6f8fa;
+  color: #0366d6;
+  border: 1px solid #d1d5da;
+}
+
+.btn-secondary:hover {
+  background-color: #e1e4e8;
+}
+</style>
+

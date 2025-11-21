@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en-US' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <meta name="description" content="{{ site.description }}">
+</head>
+<body>
+    <div class="site-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1><a href="{{ '/' | relative_url }}">{{ site.title }}</a></h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="{{ '/' | relative_url }}">Home</a></li>
+                    {% if site.lessons and site.lessons.size > 0 %}
+                        <li><a href="{{ '/' | relative_url }}">All Lessons</a></li>
+                    {% else %}
+                        <li><a href="{{ '/ACTIVITY_GUIDE.html' | relative_url }}">Activity Guide</a></li>
+                        <li><a href="{{ '/project-guide-show-me.html' | relative_url }}">Project Guide</a></li>
+                        <li><a href="{{ '/OVERALL_PLAN.html' | relative_url }}">Overall Plan</a></li>
+                    {% endif %}
+                </ul>
+                
+                {% comment %} Determine current lesson from page URL {% endcomment %}
+                {% assign current_lesson = nil %}
+                {% if site.lessons and site.lessons.size > 0 %}
+                    {% for lesson in site.lessons %}
+                        {% if page.url contains lesson.url %}
+                            {% assign current_lesson = lesson %}
+                            {% break %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
+                {% if current_lesson %}
+                    <h3>{{ current_lesson.title }} - Levels</h3>
+                    {% assign collection_name = current_lesson.slug | append: '-levels' %}
+                {% else %}
+                    <h3>Levels</h3>
+                    {% assign collection_name = site.level_manager.collection_name | default: 'levels' %}
+                {% endif %}
+                
+                <ul class="level-nav">
+                    {% assign levels_collection = site[collection_name] %}
+                    {% assign sorted_levels = levels_collection | sort: 'number' %}
+                    {% assign current_level_num = page.number %}
+                    {% for level in sorted_levels %}
+                        {% if level.number == current_level_num %}
+                            <li><a href="{{ level.url | relative_url }}" class="active">Level {{ level.number }}: {{ level.subtitle }}</a></li>
+                        {% else %}
+                            <li><a href="{{ level.url | relative_url }}">Level {{ level.number }}: {{ level.subtitle }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                
+                {% if current_lesson %}
+                    <div class="spa-link">
+                        <a href="{{ current_lesson.url | relative_url }}/all-levels-spa.html" class="btn-spa">📄 View All Levels</a>
+                    </div>
+                {% else %}
+                    <div class="spa-link">
+                        {% assign spa_page = site.level_manager.spa_page_name | default: 'all-levels-spa.html' %}
+                        <a href="{{ spa_page | relative_url }}" class="btn-spa">📄 View All Levels</a>
+                    </div>
+                {% endif %}
+            </nav>
+        </aside>
+        <main class="main-content">
+            <article class="content">
+                {{ content }}
+            </article>
+        </main>
+    </div>
+</body>
+</html>

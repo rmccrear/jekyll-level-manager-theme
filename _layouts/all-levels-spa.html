@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="spa-controls">
+  <div class="spa-header">
+    <h1>All Levels - Development View</h1>
+    <button id="toggle-all" class="btn-toggle">Show All Levels</button>
+    <button id="collapse-all" class="btn-toggle">Collapse All</button>
+  </div>
+  
+  <div class="level-quick-nav">
+    <span class="nav-label">Quick Jump:</span>
+    {% for i in (1..20) %}
+      <a href="#level-{{ i }}" class="level-jump-link" data-level="{{ i }}">
+        {{ i }}{% if i == 19 %}⚡{% endif %}
+      </a>
+      {% unless forloop.last %} | {% endunless %}
+    {% endfor %}
+  </div>
+</div>
+
+<div class="all-levels-container">
+  {% comment %}
+    Process the all-levels.md content
+    The level tags will be processed by the LevelTag plugin
+  {% endcomment %}
+  {{ content | liquid_markdownify }}
+</div>
+
+<script src="{{ '/assets/js/all-levels-spa.js' | relative_url }}"></script>
+<link rel="stylesheet" href="{{ '/assets/css/all-levels-spa.css' | relative_url }}">
+

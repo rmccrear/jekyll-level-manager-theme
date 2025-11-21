@@ -1,0 +1,20 @@
+# Cursor Rules for Jekyll Level Manager Theme
+
+This directory contains editable source files for the theme.
+All files in this directory can be edited directly.
+
+## Editable Directories
+- _layouts/
+- _plugins/
+- assets/
+- lib/
+- scripts/
+
+## File Patterns
+- *.rb - Ruby plugin files (editable)
+- *.html - Layout files (editable)
+- *.css - Stylesheet files (editable)
+- *.js - JavaScript files (editable)
+- *.md - Documentation files (editable)
+- *.yml - Configuration files (editable)
+

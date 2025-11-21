@@ -1,0 +1,52 @@
+---
+layout: default
+---
+
+{% comment %}
+  Use page content directly (from markdown file)
+  Navigation generated from db-levels collection
+{% endcomment %}
+{% assign level_content = content %}
+{% assign current_level_num = page.number %}
+
+<div class="level-navigation">
+  <div class="nav-container">
+    <span class="nav-label">Level Navigation:</span>
+    {% comment %}
+      Generate navigation from db-levels collection
+      Sort by number to ensure correct order
+    {% endcomment %}
+    {% assign sorted_levels = site.db-levels | sort: 'number' %}
+    {% for level in sorted_levels %}
+      {% if level.number == current_level_num %}
+        <strong class="active-level">{{ level.number }}</strong>
+      {% else %}
+        <a href="{{ level.url | relative_url }}" class="level-nav-link">
+          {{ level.number }}{% if level.number == 19 %}⚡{% endif %}
+        </a>
+      {% endif %}
+      {% unless forloop.last %} | {% endunless %}
+    {% endfor %}
+    {% comment %} Fallback if collection is empty - use hardcoded 1-20 {% endcomment %}
+    {% if sorted_levels.size == 0 %}
+      {% for i in (1..20) %}
+        {% if i == current_level_num %}
+          <strong class="active-level">{{ i }}</strong>
+        {% else %}
+          <a href="{{ '/db-levels/db-mini-project-lv-' | append: i | append: '.html' | relative_url }}" class="level-nav-link">
+            {{ i }}{% if i == 19 %}⚡{% endif %}
+          </a>
+        {% endif %}
+        {% unless forloop.last %} | {% endunless %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+{% comment %}
+  Process content: First render as Liquid template (to process showme tags),
+  then convert markdown to HTML
+  The liquid_markdownify filter handles both steps
+{% endcomment %}
+{{ level_content | liquid_markdownify }}
+

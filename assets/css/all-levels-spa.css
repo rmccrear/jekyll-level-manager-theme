@@ -1,0 +1,123 @@
+/* All Levels SPA Styles */
+
+.spa-controls {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-bottom: 2px solid #e1e4e8;
+  margin-bottom: 30px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.spa-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.spa-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  flex: 1;
+}
+
+.btn-toggle {
+  padding: 8px 16px;
+  background-color: #0366d6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.btn-toggle:hover {
+  background-color: #0256cc;
+}
+
+.level-quick-nav {
+  padding-top: 10px;
+  border-top: 1px solid #e1e4e8;
+}
+
+.level-quick-nav .nav-label {
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.level-jump-link {
+  color: #0366d6;
+  text-decoration: none;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.level-jump-link:hover {
+  background-color: #e1e4e8;
+}
+
+.all-levels-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.level-section {
+  margin-bottom: 60px;
+  padding: 30px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.level-section:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.level-section.highlight {
+  background-color: #fff3cd;
+  border-color: #ffc107;
+  animation: pulse 0.5s;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.level-title {
+  color: #24292e;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #0366d6;
+}
+
+.level-section h2 {
+  margin-top: 30px;
+  color: #24292e;
+}
+
+.level-section h3 {
+  margin-top: 20px;
+  color: #586069;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .spa-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .level-section {
+    padding: 20px;
+  }
+}
+
