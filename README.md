@@ -169,6 +169,26 @@ Each level in `levels_by_subtitle` has:
 - `file` - Filename
 - `url` - Relative URL
 
+## Commands
+
+### Creating an Example Lesson
+
+To quickly get started, you can create an example lesson with 3 sample levels:
+
+```bash
+bundle exec jekyll create-example-lesson
+```
+
+Or using the executable directly:
+
+```bash
+bundle exec exe/jekyll-create-example-lesson
+```
+
+This will create an `example-lesson` directory in your `_lessons/` folder (or your configured `lessons_dir`) with:
+- `lesson.yml` - Lesson metadata
+- `all-levels.md` - Three example levels demonstrating the structure
+
 ## Building Individual Files
 
 The theme automatically builds individual markdown files during Jekyll build. You can also build them manually:
@@ -209,20 +229,30 @@ Layout for the single-page development view:
 jekyll-level-manager-theme/
 ├── _layouts/
 │   ├── default.html
+│   ├── lesson-home.html
+│   ├── lessons-landing.html
 │   ├── level.html
 │   └── all-levels-spa.html
 ├── _plugins/
 │   ├── level_tag.rb
 │   ├── showme_tag.rb
 │   ├── liquid_markdown_filter.rb
+│   ├── lessons_generator.rb
 │   ├── build_levels_generator.rb
-│   └── all_levels_spa_generator.rb
+│   ├── all_levels_spa_generator.rb
+│   ├── create_example_lesson_command.rb
+│   └── commands/
+│       └── create_example_lesson.rb
 ├── assets/
 │   ├── css/
 │   │   ├── style.css
 │   │   └── all-levels-spa.css
 │   └── js/
 │       └── all-levels-spa.js
+├── lib/
+│   └── jekyll-level-manager-theme.rb
+├── exe/
+│   └── jekyll-create-example-lesson
 ├── scripts/
 │   └── build_levels.rb
 ├── jekyll-level-manager-theme.gemspec

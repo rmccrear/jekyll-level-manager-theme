@@ -31,11 +31,13 @@ gem "jekyll-level-manager-theme", path: "../jekyll-level-manager-theme"
 
 All files in the theme directory are editable:
 
-- `_plugins/*.rb` - Ruby plugins (generators, tags, filters)
+- `_plugins/*.rb` - Ruby plugins (generators, tags, filters, commands)
+- `_plugins/commands/*.rb` - Command implementations
 - `_layouts/*.html` - HTML layouts
 - `assets/css/*.css` - Stylesheets
 - `assets/js/*.js` - JavaScript
-- `lib/jekyll-level-manager-theme/*.rb` - Gem entry point files
+- `lib/jekyll-level-manager-theme.rb` - Gem entry point file
+- `exe/*` - Executable commands
 
 ## Testing Changes
 
@@ -48,9 +50,10 @@ All files in the theme directory are editable:
 ```
 jekyll-level-manager-theme/
 ├── _layouts/          # Editable HTML layouts
-├── _plugins/          # Editable Ruby plugins
+├── _plugins/          # Editable Ruby plugins (generators, tags, filters, commands)
 ├── assets/            # Editable CSS/JS
 ├── lib/               # Editable gem entry point
+├── exe/               # Editable executables
 └── scripts/           # Editable build scripts
 ```
 
