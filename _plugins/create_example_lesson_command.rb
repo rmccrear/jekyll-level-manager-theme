@@ -143,8 +143,30 @@ This is the final level. It brings everything together.
           
           File.write(File.join(example_lesson_dir, 'all-levels.md'), all_levels_content, encoding: 'UTF-8')
           
+          # Copy LESSON_PROMPT.md to project root if it exists in the gem
+          copy_lesson_prompt(site.source)
+          
           Jekyll.logger.info "CreateExampleLesson:", "✅ Example lesson created at: #{example_lesson_dir}"
           Jekyll.logger.info "CreateExampleLesson:", "   Run 'bundle exec jekyll build' to see it in action!"
+        end
+        
+        def copy_lesson_prompt(site_source)
+          # Find the gem root
+          # The command file is in _plugins/, so go up one level to gem root
+          gem_root = File.expand_path("..", __dir__)
+          prompt_source = File.join(gem_root, 'LESSON_PROMPT.md')
+          prompt_dest = File.join(site_source, 'LESSON_PROMPT.md')
+          
+          if File.exist?(prompt_source)
+            unless File.exist?(prompt_dest)
+              FileUtils.cp(prompt_source, prompt_dest)
+              Jekyll.logger.info "CreateExampleLesson:", "✅ Added LESSON_PROMPT.md to project root"
+            else
+              Jekyll.logger.warn "CreateExampleLesson:", "LESSON_PROMPT.md already exists in project root, skipping"
+            end
+          else
+            Jekyll.logger.warn "CreateExampleLesson:", "LESSON_PROMPT.md not found in gem at: #{prompt_source}"
+          end
         end
       end
     end
