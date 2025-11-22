@@ -13,32 +13,42 @@ layout: default
   <div class="nav-container">
     <span class="nav-label">Level Navigation:</span>
     {% comment %}
-      Generate navigation from db-levels collection
+      Generate navigation from levels collection
       Sort by number to ensure correct order
     {% endcomment %}
-    {% assign sorted_levels = site.db-levels | sort: 'number' %}
-    {% for level in sorted_levels %}
-      {% if level.number == current_level_num %}
-        <strong class="active-level">{{ level.number }}</strong>
+    {% comment %} Determine collection name from page context {% endcomment %}
+    {% if page.lesson_slug %}
+      {% assign collection_name = page.lesson_slug | append: '-levels' %}
+    {% else %}
+      {% assign collection_name = site.level_manager.collection_name | default: 'levels' %}
+    {% endif %}
+    
+    {% comment %} Access collection directly (works better in Liquid) {% endcomment %}
+    {% if collection_name == 'apple-clicker-levels' %}
+      {% assign sorted_levels = site.apple-clicker-levels | sort: 'number' %}
+    {% elsif collection_name == 'example-lesson-levels' %}
+      {% assign sorted_levels = site.example-lesson-levels | sort: 'number' %}
+    {% else %}
+      {% assign levels_collection = site.collections[collection_name] %}
+      {% if levels_collection and levels_collection.docs %}
+        {% assign sorted_levels = levels_collection.docs | sort: 'number' %}
       {% else %}
-        <a href="{{ level.url | relative_url }}" class="level-nav-link">
-          {{ level.number }}{% if level.number == 19 %}⚡{% endif %}
-        </a>
+        {% assign sorted_levels = null %}
       {% endif %}
-      {% unless forloop.last %} | {% endunless %}
-    {% endfor %}
-    {% comment %} Fallback if collection is empty - use hardcoded 1-20 {% endcomment %}
-    {% if sorted_levels.size == 0 %}
-      {% for i in (1..20) %}
-        {% if i == current_level_num %}
-          <strong class="active-level">{{ i }}</strong>
+    {% endif %}
+    {% if sorted_levels %}
+      {% for level in sorted_levels %}
+        {% if level.number == current_level_num %}
+          <strong class="active-level">{{ level.number }}</strong>
         {% else %}
-          <a href="{{ '/db-levels/db-mini-project-lv-' | append: i | append: '.html' | relative_url }}" class="level-nav-link">
-            {{ i }}{% if i == 19 %}⚡{% endif %}
+          <a href="{{ level.url | relative_url }}" class="level-nav-link">
+            {{ level.number }}{% if level.number == 19 %}⚡{% endif %}
           </a>
         {% endif %}
         {% unless forloop.last %} | {% endunless %}
       {% endfor %}
+    {% else %}
+      <span>No levels available</span>
     {% endif %}
   </div>
 </div>

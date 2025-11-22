@@ -1,17 +1,28 @@
 module Jekyll
   class LevelTag < Liquid::Block
-    @@level_counter = 0  # Class variable to track level numbers (auto-numbering)
+    # Use a hash to track counters per page (keyed by page URL)
+    @@level_counters = {}  # Hash to track level numbers per page
     
     def initialize(tag_name, markup, tokens)
       super
       @attrs = parse_attributes(markup)
-      @@level_counter += 1
-      @level_number = @@level_counter
+      # Counter will be set during render when we have page context
     end
     
-    # Reset counter at the start of each page render
-    def self.reset_counter
-      @@level_counter = 0
+    # Reset counter for a specific page
+    def self.reset_counter(page_key = nil)
+      if page_key
+        @@level_counters[page_key] = 0
+      else
+        @@level_counters.clear
+      end
+    end
+    
+    # Get or initialize counter for a page
+    def self.get_counter(page_key)
+      @@level_counters[page_key] ||= 0
+      @@level_counters[page_key] += 1
+      @@level_counters[page_key]
     end
 
     def render(context)
@@ -19,8 +30,13 @@ module Jekyll
       content = super
       site = context.registers[:site]
       
-      # Use auto-numbering instead of explicit number
-      level_num = @level_number
+      # Get page key for per-page counter
+      page = context.registers[:page]
+      page_key = page && page['url'] ? page['url'] : 'default'
+      
+      # Get or increment counter for this page
+      level_num = Jekyll::LevelTag.get_counter(page_key)
+      @level_number = level_num  # Store for use in render_content
       
       # Store level data in context for SPA view
       level_data = {
@@ -66,12 +82,15 @@ module Jekyll
         
         # Make level variables available in Liquid context
         current_subtitle = @attrs['subtitle'] || @attrs[:subtitle] || ''
+        # Use the level_num from the outer render method (stored in @level_number)
+        current_level_num = @level_number
+        
         context['level'] = {
-          'number' => @level_number,
-          'title' => "Level #{@level_number}",
+          'number' => current_level_num,
+          'title' => "Level #{current_level_num}",
           'subtitle' => current_subtitle
         }
-        context['level_number'] = @level_number
+        context['level_number'] = current_level_num
         context['level_subtitle'] = current_subtitle
         
         # Make all levels available for cross-referencing
@@ -95,7 +114,7 @@ module Jekyll
           # Parse from all-levels.md as fallback
           all_levels_file = File.join(site.source, '_db-levels', 'all-levels.md')
           if File.exist?(all_levels_file)
-            file_content = File.read(all_levels_file)
+            file_content = File.read(all_levels_file, encoding: 'UTF-8')
             # Remove front matter if present
             if file_content.start_with?('---')
               parts = file_content.split(/^---\s*$/, 3)

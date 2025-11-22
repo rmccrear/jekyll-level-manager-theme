@@ -4,7 +4,34 @@ document.addEventListener('DOMContentLoaded', function() {
   const levelSections = document.querySelectorAll('.level-section');
   const toggleAllBtn = document.getElementById('toggle-all');
   const collapseAllBtn = document.getElementById('collapse-all');
-  const jumpLinks = document.querySelectorAll('.level-jump-link');
+  const quickJumpContainer = document.getElementById('quick-jump-links');
+  
+  // Generate Quick Jump links from actual level sections on the page
+  if (quickJumpContainer && levelSections.length > 0) {
+    const links = [];
+    levelSections.forEach(section => {
+      const levelNum = section.getAttribute('data-level') || section.id.replace('level-', '');
+      if (levelNum) {
+        const link = document.createElement('a');
+        link.href = `#level-${levelNum}`;
+        link.className = 'level-jump-link';
+        link.setAttribute('data-level', levelNum);
+        link.textContent = levelNum;
+        links.push(link);
+      }
+    });
+    
+    // Clear container and add links with separators
+    quickJumpContainer.innerHTML = '';
+    links.forEach((link, index) => {
+      quickJumpContainer.appendChild(link);
+      if (index < links.length - 1) {
+        quickJumpContainer.appendChild(document.createTextNode(' | '));
+      }
+    });
+  } else if (quickJumpContainer) {
+    quickJumpContainer.textContent = 'No levels available';
+  }
   
   // Initially show all levels
   let allExpanded = true;
@@ -32,11 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleAllBtn.textContent = 'Show All Levels';
   });
   
-  // Quick jump navigation
-  jumpLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
+  // Quick jump navigation (use event delegation since links are created dynamically)
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('level-jump-link')) {
       e.preventDefault();
-      const levelNum = this.getAttribute('data-level');
+      const levelNum = e.target.getAttribute('data-level');
       const targetSection = document.getElementById(`level-${levelNum}`);
       
       if (targetSection) {
@@ -50,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
           targetSection.classList.remove('highlight');
         }, 2000);
       }
-    });
+    }
   });
   
   // Hash-based navigation (e.g., #level-5)
@@ -65,10 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Keyboard navigation (arrow keys)
   let currentLevel = 1;
+  const maxLevel = levelSections.length;
   document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
-      if (e.key === 'ArrowDown' && currentLevel < 20) {
+      if (e.key === 'ArrowDown' && currentLevel < maxLevel) {
         currentLevel++;
       } else if (e.key === 'ArrowUp' && currentLevel > 1) {
         currentLevel--;

@@ -58,7 +58,7 @@ module Jekyll
         
         # Also check front matter of all-levels.md
         if File.exist?(all_levels_file)
-          content = File.read(all_levels_file)
+          content = File.read(all_levels_file, encoding: 'UTF-8')
           if content.start_with?('---')
             parts = content.split(/^---\s*$/, 3)
             if parts.length >= 2

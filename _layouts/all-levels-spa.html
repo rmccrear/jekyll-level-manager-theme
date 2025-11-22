@@ -2,21 +2,48 @@
 layout: default
 ---
 
+{% comment %} Get the lesson and collection for this SPA page {% endcomment %}
+{% if page.lesson_slug %}
+  {% assign current_lesson_slug = page.lesson_slug %}
+  {% assign collection_name = page.lesson_slug | append: '-levels' %}
+{% elsif page.lesson %}
+  {% assign current_lesson = page.lesson %}
+  {% assign current_lesson_slug = current_lesson.slug %}
+  {% assign collection_name = current_lesson.slug | append: '-levels' %}
+{% else %}
+  {% comment %} Try to infer from URL {% endcomment %}
+  {% for lesson in site.lessons %}
+    {% if page.url contains lesson.slug %}
+      {% assign current_lesson = lesson %}
+      {% assign current_lesson_slug = lesson.slug %}
+      {% assign collection_name = lesson.slug | append: '-levels' %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% comment %} Get levels from collection - use same pattern as default layout {% endcomment %}
+{% if collection_name == 'apple-clicker-levels' %}
+  {% assign sorted_levels = site.apple-clicker-levels | sort: 'number' %}
+{% else %}
+  {% assign levels_collection = site.collections[collection_name] %}
+  {% if levels_collection and levels_collection.docs %}
+    {% assign sorted_levels = levels_collection.docs | sort: 'number' %}
+  {% else %}
+    {% assign sorted_levels = null %}
+  {% endif %}
+{% endif %}
+
 <div class="spa-controls">
   <div class="spa-header">
-    <h1>All Levels - Development View</h1>
+    <h1>{% if current_lesson %}{{ current_lesson.title }} - {% endif %}All Levels - Development View</h1>
     <button id="toggle-all" class="btn-toggle">Show All Levels</button>
     <button id="collapse-all" class="btn-toggle">Collapse All</button>
   </div>
   
   <div class="level-quick-nav">
     <span class="nav-label">Quick Jump:</span>
-    {% for i in (1..20) %}
-      <a href="#level-{{ i }}" class="level-jump-link" data-level="{{ i }}">
-        {{ i }}{% if i == 19 %}⚡{% endif %}
-      </a>
-      {% unless forloop.last %} | {% endunless %}
-    {% endfor %}
+    <span id="quick-jump-links">Loading...</span>
   </div>
 </div>
 

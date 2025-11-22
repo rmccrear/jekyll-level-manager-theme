@@ -17,10 +17,14 @@ layout: default
   <div class="lesson-navigation">
     <h2>Levels</h2>
     {% assign collection_name = page.lesson.slug | append: '-levels' %}
-    {% assign levels_collection = site[collection_name] %}
-    {% assign sorted_levels = levels_collection | sort: 'number' %}
+    {% assign levels_collection = site.collections[collection_name] %}
+    {% if levels_collection and levels_collection.docs %}
+      {% assign sorted_levels = levels_collection.docs | sort: 'number' %}
+    {% else %}
+      {% assign sorted_levels = null %}
+    {% endif %}
     
-    {% if sorted_levels.size > 0 %}
+    {% if sorted_levels and sorted_levels.size > 0 %}
     <ul class="levels-list">
       {% for level in sorted_levels %}
       <li>

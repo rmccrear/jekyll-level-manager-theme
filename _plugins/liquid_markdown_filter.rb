@@ -9,6 +9,12 @@ module Jekyll
       context = @context
       site = context.registers[:site]
       
+      # Reset level counter for this page before parsing (ensures each page starts at 1)
+      # Get page URL from context for per-page counter
+      page = context.registers[:page]
+      page_key = page && page['url'] ? page['url'] : 'default'
+      Jekyll::LevelTag.reset_counter(page_key) if defined?(Jekyll::LevelTag)
+      
       begin
         # First, render as Liquid template to process tags like {% showme %}
         template = Liquid::Template.parse(content)

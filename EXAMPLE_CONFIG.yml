@@ -1,0 +1,50 @@
+# Example configuration for jekyll-level-manager-theme
+# Copy relevant sections to your _config.yml
+
+# Collections configuration
+collections:
+  levels:  # or db-levels, lessons, chapters, etc.
+    output: true
+    permalink: /levels/:name.html
+
+# Level Manager Theme Configuration
+level_manager:
+  # Source file containing all levels (relative to site root)
+  source_file: "_levels/all-levels.md"
+  
+  # Collection name (should match the collection key above)
+  collection_name: "levels"
+  
+  # Directory for generated level files (should match collection name with _ prefix)
+  collection_dir: "_levels"
+  
+  # File naming pattern (supports {{ number }} variable)
+  # Examples:
+  #   "level-{{ number }}" → level-1.md, level-2.md
+  #   "lesson-{{ number }}" → lesson-1.md, lesson-2.md
+  #   "db-mini-project-lv-{{ number }}" → db-mini-project-lv-1.md
+  file_pattern: "level-{{ number }}"
+  
+  # URL pattern for level pages (supports :name and :number variables)
+  # Examples:
+  #   "/levels/:name.html" → /levels/level-1.html
+  #   "/db-levels/:name.html" → /db-levels/db-mini-project-lv-1.html
+  url_pattern: "/levels/:name.html"
+  
+  # SPA page name (relative to site root)
+  spa_page_name: "all-levels-spa.html"
+  
+  # Enable/disable automatic building of individual files during Jekyll build
+  build_individual_levels: true
+
+# Defaults for collection pages
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+  - scope:
+      path: "_levels"  # Should match collection_dir
+    values:
+      layout: level
+

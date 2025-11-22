@@ -26,36 +26,65 @@
                     {% endif %}
                 </ul>
                 
-                {% comment %} Determine current lesson from page URL {% endcomment %}
+                {% comment %} Determine current lesson from page URL or page data {% endcomment %}
                 {% assign current_lesson = nil %}
-                {% if site.lessons and site.lessons.size > 0 %}
+                {% assign collection_name = nil %}
+                
+                {% comment %} First, try to get lesson from page data (for lesson-home pages) {% endcomment %}
+                {% if page.lesson and page.lesson.slug %}
+                    {% assign current_lesson = page.lesson %}
+                    {% assign collection_name = page.lesson.slug | append: '-levels' %}
+                {% elsif page.lesson_slug %}
+                    {% assign collection_name = page.lesson_slug | append: '-levels' %}
+                {% elsif site.lessons and site.lessons.size > 0 %}
                     {% for lesson in site.lessons %}
-                        {% if page.url contains lesson.url %}
+                        {% if page.url contains lesson.url or page.url contains lesson.slug %}
                             {% assign current_lesson = lesson %}
+                            {% assign collection_name = lesson.slug | append: '-levels' %}
                             {% break %}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
                 
+                {% comment %} Fallback to default collection name {% endcomment %}
+                {% unless collection_name %}
+                    {% assign collection_name = site.level_manager.collection_name | default: 'levels' %}
+                {% endunless %}
+                
+                {% comment %} Try apple-clicker-levels if URL contains apple-clicker {% endcomment %}
+                {% if page.url contains 'apple-clicker' and collection_name == 'levels' %}
+                    {% assign collection_name = 'apple-clicker-levels' %}
+                {% endif %}
+                
                 {% if current_lesson %}
                     <h3>{{ current_lesson.title }} - Levels</h3>
-                    {% assign collection_name = current_lesson.slug | append: '-levels' %}
                 {% else %}
                     <h3>Levels</h3>
-                    {% assign collection_name = site.level_manager.collection_name | default: 'levels' %}
                 {% endif %}
                 
                 <ul class="level-nav">
-                    {% assign levels_collection = site[collection_name] %}
-                    {% assign sorted_levels = levels_collection | sort: 'number' %}
-                    {% assign current_level_num = page.number %}
-                    {% for level in sorted_levels %}
-                        {% if level.number == current_level_num %}
-                            <li><a href="{{ level.url | relative_url }}" class="active">Level {{ level.number }}: {{ level.subtitle }}</a></li>
-                        {% else %}
-                            <li><a href="{{ level.url | relative_url }}">Level {{ level.number }}: {{ level.subtitle }}</a></li>
+                    {% if collection_name == 'apple-clicker-levels' %}
+                        {% assign sorted_levels = site.apple-clicker-levels | sort: 'number' %}
+                    {% elsif collection_name == 'example-lesson-levels' %}
+                        {% assign sorted_levels = site.example-lesson-levels | sort: 'number' %}
+                    {% else %}
+                        {% assign levels_collection = site.collections[collection_name] %}
+                        {% if levels_collection and levels_collection.docs %}
+                            {% assign sorted_levels = levels_collection.docs | sort: 'number' %}
                         {% endif %}
-                    {% endfor %}
+                    {% endif %}
+                    {% if sorted_levels and sorted_levels.size > 0 %}
+                        {% assign current_level_num = page.number %}
+                        {% for level in sorted_levels %}
+                            {% if level.number == current_level_num %}
+                                <li><a href="{{ level.url | relative_url }}" class="active">Level {{ level.number }}: {{ level.subtitle }}</a></li>
+                            {% else %}
+                                <li><a href="{{ level.url | relative_url }}">Level {{ level.number }}: {{ level.subtitle }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <li>No levels found</li>
+                    {% endif %}
                 </ul>
                 
                 {% if current_lesson %}

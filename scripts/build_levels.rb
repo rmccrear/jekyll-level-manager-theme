@@ -1,11 +1,35 @@
 #!/usr/bin/env ruby
 # Standalone script to build individual level files from all-levels.md
-# Usage: ruby scripts/build_levels.rb
+# Usage: ruby scripts/build_levels.rb [source_file] [output_dir] [file_pattern]
+#
+# Arguments (all optional):
+#   source_file: Path to all-levels.md (default: _levels/all-levels.md)
+#   output_dir: Directory for generated files (default: _levels)
+#   file_pattern: Pattern for filenames (default: level-{{ number }})
 
 require 'fileutils'
+require 'yaml'
 
-SOURCE_FILE = File.join(__dir__, '..', '_db-levels', 'all-levels.md')
-OUTPUT_DIR = File.join(__dir__, '..', '_db-levels')
+# Get arguments or use defaults
+source_file_arg = ARGV[0]
+output_dir_arg = ARGV[1]
+file_pattern_arg = ARGV[2]
+
+# Try to read from _config.yml if it exists
+config = {}
+config_file = File.join(__dir__, '..', '_config.yml')
+if File.exist?(config_file)
+  begin
+    config = YAML.load_file(config_file)['level_manager'] || {}
+  rescue
+    # If config file doesn't exist or has errors, use defaults
+  end
+end
+
+# Use config or arguments, with fallback defaults
+SOURCE_FILE = source_file_arg || config['source_file'] || File.join(__dir__, '..', '_levels', 'all-levels.md')
+OUTPUT_DIR = output_dir_arg || config['collection_dir'] || File.join(__dir__, '..', '_levels')
+FILE_PATTERN = file_pattern_arg || config['file_pattern'] || 'level-{{ number }}'
 
 def parse_level_attributes(attrs_str)
   attrs = {}
@@ -29,7 +53,7 @@ def parse_level_attributes(attrs_str)
   attrs
 end
 
-def parse_level_blocks(content)
+def parse_level_blocks(content, file_pattern)
   levels = []
   
   # Pattern to match {% level ... %} ... {% endlevel %}
@@ -44,11 +68,14 @@ def parse_level_blocks(content)
     number = level_number
     level_number += 1
     
+    # Generate filename from pattern (supports {{ number }} variable)
+    filename = file_pattern.gsub('{{ number }}', number.to_s)
+    
     levels << {
       number: number,
       title: "Level #{number}",  # Auto-generate title based on number
       subtitle: attrs[:subtitle] || attrs['subtitle'] || '',
-      file: "db-mini-project-lv-#{number}",  # Auto-generate file name based on number
+      file: filename,  # Auto-generate file name based on pattern
       content: level_content.strip
     }
   end
@@ -72,22 +99,27 @@ def build_individual_levels
   end
   
   # Parse level blocks
-  levels = parse_level_blocks(content)
+  levels = parse_level_blocks(content, FILE_PATTERN)
   
   if levels.empty?
     puts "Error: No level blocks found in #{SOURCE_FILE}"
     exit 1
   end
   
+  # Get URL pattern from config
+  url_pattern = config['url_pattern'] || "/levels/:name.html"
+  collection_name = config['collection_name'] || 'levels'
+  
   # Create a dictionary of levels by subtitle for cross-referencing
   levels_by_subtitle = {}
   levels.each do |level|
+    url = url_pattern.gsub(':name', level[:file]).gsub(':number', level[:number].to_s)
     levels_by_subtitle[level[:subtitle]] = {
       'number' => level[:number],
       'title' => level[:title],
       'subtitle' => level[:subtitle],
       'file' => level[:file],
-      'url' => "/db-levels/#{level[:file]}.html"
+      'url' => url
     }
   end
   

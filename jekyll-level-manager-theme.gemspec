@@ -17,11 +17,10 @@ Gem::Specification.new do |spec|
     "github_repo" => "https://github.com/yourusername/jekyll-level-manager-theme"
   }
 
-  spec.files         = `git ls-files -z`.split("\x0").select { |f| 
-    f.match(%r!^(assets|_layouts|_plugins|_sass|lib|scripts|LICENSE|README)!i) 
-  }
+  spec.files         = Dir["{_layouts,_plugins,assets,lib}/**/*"] + 
+                       ["jekyll-level-manager-theme.gemspec"]
   spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.executables   = ["jekyll-create-example-lesson"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "jekyll", ">= 3.8", "< 5.0"
