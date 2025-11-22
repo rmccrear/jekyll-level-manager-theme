@@ -33,7 +33,7 @@ jekyll-level-manager-theme/
 ├── lib/                           # Ruby gem entry point
 │   └── jekyll-level-manager-theme.rb  # Loads all plugins
 ├── exe/                           # Executable commands
-│   └── jekyll-create-example-lesson   # Creates example lesson
+│   └── create-example-lesson      # Creates example lesson
 ├── scripts/                       # Utility scripts
 │   └── build_levels.rb           # Standalone script to build levels
 ├── jekyll-level-manager-theme.gemspec  # Gem specification
@@ -133,7 +133,7 @@ Entry point that loads all plugins:
 
 Defines:
 - Files to include in gem: `{_layouts,_plugins,assets,lib}/**/*`
-- Executables: `jekyll-create-example-lesson`
+- Executables: `create-example-lesson`
 - Dependencies: Jekyll, Liquid
 
 ## Development Workflow

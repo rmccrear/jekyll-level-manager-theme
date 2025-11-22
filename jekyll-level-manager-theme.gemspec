@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["{_layouts,_plugins,assets,lib}/**/*"] + 
                        ["jekyll-level-manager-theme.gemspec", "LESSON_PROMPT.md"]
   spec.bindir        = "exe"
-  spec.executables   = ["jekyll-create-example-lesson"]
+  spec.executables   = ["create-example-lesson"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "jekyll", ">= 3.8", "< 5.0"

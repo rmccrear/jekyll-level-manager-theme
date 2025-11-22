@@ -176,13 +176,7 @@ Each level in `levels_by_subtitle` has:
 To quickly get started, you can create an example lesson with 3 sample levels:
 
 ```bash
-bundle exec jekyll create-example-lesson
-```
-
-Or using the executable directly:
-
-```bash
-bundle exec exe/jekyll-create-example-lesson
+bundle exec create-example-lesson
 ```
 
 This will create an `example-lesson` directory in your `_lessons/` folder (or your configured `lessons_dir`) with:
@@ -252,7 +246,7 @@ jekyll-level-manager-theme/
 ├── lib/
 │   └── jekyll-level-manager-theme.rb
 ├── exe/
-│   └── jekyll-create-example-lesson
+│   └── create-example-lesson
 ├── scripts/
 │   └── build_levels.rb
 ├── jekyll-level-manager-theme.gemspec
