@@ -1,0 +1,218 @@
+# Jekyll Level Manager Theme
+
+## Overview
+
+This is a Jekyll theme gem that enables structured, multi-level lesson content management. The theme allows users to write all content in a single markdown file (`all-levels.md`) and automatically generates individual level pages, lesson home pages, and a single-page application (SPA) view for development.
+
+## Project Structure
+
+```
+jekyll-level-manager-theme/
+├── _layouts/                      # HTML layouts for Jekyll
+│   ├── default.html              # Default page layout
+│   ├── lesson-home.html          # Lesson landing page layout
+│   ├── lessons-landing.html      # Multi-lesson landing page layout
+│   ├── level.html                # Individual level page layout
+│   └── all-levels-spa.html       # Single-page application view layout
+├── _plugins/                      # Jekyll plugins (generators, tags, filters)
+│   ├── lessons_generator.rb      # Generates lesson pages and landing page
+│   ├── build_levels_generator.rb # Splits all-levels.md into individual level files
+│   ├── all_levels_spa_generator.rb # Generates SPA view pages
+│   ├── level_tag.rb              # Liquid tag: {% level %}
+│   ├── showme_tag.rb             # Liquid tag: {% showme %}
+│   ├── liquid_markdown_filter.rb # Custom Liquid filter for markdown processing
+│   ├── create_example_lesson_command.rb # Jekyll command registration
+│   └── commands/                 # Command implementations
+│       └── create_example_lesson.rb # Creates example lesson structure
+├── assets/                        # CSS and JavaScript
+│   ├── css/
+│   │   ├── style.css            # Main stylesheet
+│   │   └── all-levels-spa.css   # SPA view stylesheet
+│   └── js/
+│       └── all-levels-spa.js    # SPA view JavaScript
+├── lib/                           # Ruby gem entry point
+│   └── jekyll-level-manager-theme.rb  # Loads all plugins
+├── exe/                           # Executable commands
+│   └── jekyll-create-example-lesson   # Creates example lesson
+├── scripts/                       # Utility scripts
+│   └── build_levels.rb           # Standalone script to build levels
+├── jekyll-level-manager-theme.gemspec  # Gem specification
+├── README.md                      # User documentation
+├── DEVELOPMENT.md                 # Development guide
+├── INSTALLATION.md                # Installation instructions
+├── LICENSE                        # MIT License
+└── test-site/                     # Example/test site
+```
+
+## Core Components
+
+### Generators
+
+1. **lessons_generator.rb**
+   - Discovers lessons in `_lessons/` directory
+   - Generates lesson home pages and landing page
+   - Reads `lesson.yml` files for metadata
+   - Creates Jekyll pages and posts
+
+2. **build_levels_generator.rb**
+   - Runs before Jekyll processes collections
+   - Parses `all-levels.md` files using Liquid
+   - Extracts `{% level %}` blocks
+   - Creates individual markdown files in `_{lesson-name}-levels/`
+   - Registers Jekyll collections dynamically
+
+3. **all_levels_spa_generator.rb**
+   - Generates single-page application views
+   - Creates `/all-levels-spa.html` for each lesson
+   - Used for fast development/preview
+
+### Liquid Tags
+
+1. **level_tag.rb** - `{% level subtitle="Name" %}`
+   - Wraps content for a single level
+   - Provides `level` object with number, title, subtitle, url
+   - Makes `all_levels` and `levels_by_subtitle` available
+   - Auto-numbers levels sequentially
+
+2. **showme_tag.rb** - `{% showme "Title" %}`
+   - Creates collapsible `<details>/<summary>` sections
+   - Processes markdown content inside
+
+### Filters
+
+**liquid_markdown_filter.rb** - Custom filter for processing markdown within Liquid templates
+
+### Commands
+
+**create_example_lesson** - Jekyll command to scaffold a new lesson:
+```bash
+bundle exec jekyll create-example-lesson
+# or
+bundle exec exe/jekyll-create-example-lesson
+```
+
+## How It Works
+
+### Single Lesson Mode
+
+For sites with one lesson/course:
+
+1. User creates `_levels/all-levels.md` with `{% level %}` tags
+2. `build_levels_generator` parses the file during Jekyll build
+3. Individual level files created in `_levels/` directory
+4. Jekyll processes these as a collection
+5. Individual pages generated at `/levels/level-1.html`, etc.
+6. SPA view generated at `/all-levels-spa.html`
+
+### Multi-Lesson Mode
+
+For sites with multiple lessons:
+
+1. User creates directories in `_lessons/{lesson-name}/`
+2. Each lesson has `lesson.yml` (metadata) and `all-levels.md` (content)
+3. `lessons_generator` discovers all lessons
+4. `build_levels_generator` processes each `all-levels.md` file
+5. Individual level files created in `_{lesson-name}-levels/`
+6. Collections registered dynamically
+7. Pages generated:
+   - Landing page: `/` (lists all lessons)
+   - Lesson home: `/{lesson-slug}/`
+   - Individual levels: `/{lesson-slug}/levels/{level-name}.html`
+   - SPA view: `/{lesson-slug}/all-levels-spa.html`
+
+## Key Files
+
+### jekyll-level-manager-theme.rb (lib/)
+
+Entry point that loads all plugins:
+- Locates `_plugins/` directory relative to gem root
+- Loads all `.rb` files from `_plugins/`
+- Loads command files (files ending in `_command.rb`)
+
+### jekyll-level-manager-theme.gemspec
+
+Defines:
+- Files to include in gem: `{_layouts,_plugins,assets,lib}/**/*`
+- Executables: `jekyll-create-example-lesson`
+- Dependencies: Jekyll, Liquid
+
+## Development Workflow
+
+### Local Development
+
+1. Edit files in the theme directory
+2. Use theme in test site via path in Gemfile:
+   ```ruby
+   gem "jekyll-level-manager-theme", path: "../jekyll-level-manager-theme"
+   ```
+3. Changes reflect immediately on `jekyll serve`
+
+### Publishing
+
+1. Update version in `jekyll-level-manager-theme.gemspec`
+2. Commit and push to GitHub
+3. Users install via:
+   ```ruby
+   gem "jekyll-level-manager-theme", git: "https://github.com/user/repo.git"
+   ```
+
+## Configuration Options
+
+Users configure in `_config.yml`:
+
+```yaml
+level_manager:
+  # Multi-lesson mode
+  lessons_dir: "_lessons"
+  landing_title: "Available Courses"
+  landing_description: "Choose a course..."
+  build_individual_levels: true
+  
+  # Single lesson mode
+  source_file: "_levels/all-levels.md"
+  collection_name: "levels"
+  collection_dir: "_levels"
+  file_pattern: "level-{{ number }}"
+  url_pattern: "/levels/:name.html"
+  spa_page_name: "all-levels-spa.html"
+```
+
+## Testing
+
+Use `test-site/` directory for testing:
+- Contains example lesson structure
+- Can run `bundle exec jekyll serve` from test-site/
+- Validates theme functionality
+
+## Important Notes
+
+- Plugins are in `_plugins/` (Jekyll convention) not `lib/jekyll-level-manager-theme/`
+- The `lib/jekyll-level-manager-theme.rb` file loads plugins from `_plugins/`
+- Commands are registered via `create_example_lesson_command.rb`
+- The executable in `exe/` calls the command implementation
+- All generators run during Jekyll build process
+- Liquid tags are processed twice: once during file splitting, once during page rendering
+
+## Common Tasks
+
+### Adding a New Generator
+
+1. Create file in `_plugins/`
+2. Inherit from `Jekyll::Generator`
+3. Implement `generate(site)` method
+4. File auto-loaded via `lib/jekyll-level-manager-theme.rb`
+
+### Adding a New Liquid Tag
+
+1. Create file in `_plugins/` (e.g., `my_tag.rb`)
+2. Inherit from `Liquid::Block` or `Liquid::Tag`
+3. Implement render method
+4. Register with `Liquid::Template.register_tag`
+
+### Adding a New Command
+
+1. Create command implementation in `_plugins/commands/`
+2. Create command registration in `_plugins/` with `_command.rb` suffix
+3. Create executable in `exe/` if needed
+4. Update gemspec executables list
+
