@@ -86,9 +86,7 @@ jekyll-level-manager-theme/
 
 **create_example_lesson** - Jekyll command to scaffold a new lesson:
 ```bash
-bundle exec jekyll create-example-lesson
-# or
-bundle exec exe/jekyll-create-example-lesson
+bundle exec create-example-lesson
 ```
 
 ## How It Works
