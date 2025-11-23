@@ -16,26 +16,26 @@ layout: default
 
   <div class="lesson-navigation">
     <h2>Levels</h2>
-    {% assign collection_name = page.lesson.slug | append: '-levels' %}
-    {% assign levels_collection = site.collections[collection_name] %}
-    {% if levels_collection and levels_collection.docs %}
-      {% assign sorted_levels = levels_collection.docs | sort: 'number' %}
+    {% comment %} Link to SPA with anchors instead of individual pages {% endcomment %}
+    {% if page.lesson %}
+      <ul class="levels-list">
+        <li>
+          <a href="{{ page.lesson.url | relative_url }}/all-levels-spa.html#level-1">
+            <strong>Level 1</strong> - Start here
+          </a>
+        </li>
+        <li>
+          <a href="{{ page.lesson.url | relative_url }}/all-levels-spa.html" class="btn btn-primary">
+            📄 View All Levels (SPA)
+          </a>
+        </li>
+      </ul>
     {% else %}
-      {% assign sorted_levels = null %}
-    {% endif %}
-    
-    {% if sorted_levels and sorted_levels.size > 0 %}
-    <ul class="levels-list">
-      {% for level in sorted_levels %}
-      <li>
-        <a href="{{ level.url | relative_url }}">
-          <strong>Level {{ level.number }}</strong>: {{ level.subtitle }}
+      <p>
+        <a href="/all-levels-spa.html" class="btn btn-primary">
+          📄 View All Levels (SPA)
         </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>Levels are being generated. Please run <code>bundle exec jekyll build</code>.</p>
+      </p>
     {% endif %}
   </div>
 

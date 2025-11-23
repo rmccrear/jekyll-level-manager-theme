@@ -27,7 +27,6 @@ else
   # Fallback: try to find the directory relative to this file
   # This handles cases where __dir__ might not work as expected
   require_relative "../_plugins/lessons_generator"
-  require_relative "../_plugins/build_levels_generator"
   require_relative "../_plugins/all_levels_spa_generator"
   require_relative "../_plugins/level_tag"
   require_relative "../_plugins/showme_tag"

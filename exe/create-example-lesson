@@ -4,7 +4,19 @@
 # Load the command from the gem
 require_relative '../_plugins/create_example_lesson_command'
 
-# Run the command
+# Parse command line arguments
 options = {}
+ARGV.each_with_index do |arg, i|
+  case arg
+  when '-n', '--name'
+    options[:name] = ARGV[i + 1]
+  when '-t', '--title'
+    options[:title] = ARGV[i + 1]
+  when '-d', '--description'
+    options[:description] = ARGV[i + 1]
+  end
+end
+
+# Run the command
 Jekyll::Commands::CreateExampleLesson.process(options)
 

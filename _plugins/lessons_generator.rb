@@ -132,7 +132,7 @@ This lesson contains multiple levels. Start with Level 1 and work through them s
 ## Quick Links
 
 - [View All Levels (SPA)](#{lesson['url']}/all-levels-spa.html) - Fast development view
-- [Level 1](#{lesson['url']}/levels/#{lesson['slug']}-level-1.html) - Start here
+- [Level 1](#{lesson['url']}/all-levels-spa.html#level-1) - Start here
       MARKDOWN
       
       self.content = content
