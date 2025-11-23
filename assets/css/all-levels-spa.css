@@ -39,6 +39,22 @@
   background-color: #0256cc;
 }
 
+.btn-focus {
+  background-color: #28a745;
+}
+
+.btn-focus:hover {
+  background-color: #218838;
+}
+
+.btn-focus.active {
+  background-color: #dc3545;
+}
+
+.btn-focus.active:hover {
+  background-color: #c82333;
+}
+
 .level-quick-nav {
   padding-top: 10px;
   border-top: 1px solid #e1e4e8;

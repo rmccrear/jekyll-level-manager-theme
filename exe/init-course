@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Load the command from the gem
+require_relative '../_plugins/init_course_command'
+
+# Parse command line arguments
+options = {}
+ARGV.each_with_index do |arg, i|
+  case arg
+  when '-n', '--name'
+    options[:name] = ARGV[i + 1]
+  when '-t', '--title'
+    options[:title] = ARGV[i + 1]
+  when '-d', '--description'
+    options[:description] = ARGV[i + 1]
+  when '--lessons-dir'
+    options['lessons-dir'] = ARGV[i + 1]
+  when '--landing-title'
+    options['landing-title'] = ARGV[i + 1]
+  when '--gemset'
+    options[:gemset] = ARGV[i + 1]
+  when '--ruby-version'
+    options['ruby-version'] = ARGV[i + 1]
+  when '--no-git'
+    options['no-git'] = true
+  when '--force'
+    options[:force] = true
+  end
+end
+
+# Run the command
+Jekyll::Commands::InitCourse.process(options)
+

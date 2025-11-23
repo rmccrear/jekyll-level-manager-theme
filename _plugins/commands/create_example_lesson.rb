@@ -2,6 +2,7 @@
 
 require "jekyll"
 require "fileutils"
+require "yaml"
 
 module Jekyll
   module Commands
@@ -9,8 +10,12 @@ module Jekyll
       class << self
         def init_with_program(prog)
           prog.command(:create_example_lesson) do |c|
-            c.syntax "create-example-lesson"
+            c.syntax "create-example-lesson [OPTIONS]"
             c.description "Create an example lesson with 3 levels to help you get started"
+            
+            c.option "name", "-n", "--name NAME", "Lesson name/slug (default: 'example-lesson')"
+            c.option "title", "-t", "--title TITLE", "Lesson title (default: generated from name)"
+            c.option "description", "-d", "--description DESC", "Lesson description"
             
             c.action do |args, options|
               Jekyll::Commands::CreateExampleLesson.process(options)
@@ -18,41 +23,66 @@ module Jekyll
           end
         end
         
-        def process(options)
-          config = Jekyll.configuration
-          site = Jekyll::Site.new(config)
+        def process(options = {})
+          # Extract lesson name from options
+          lesson_name = options[:name] || options['name'] || 'example-lesson'
+          lesson_title = options[:title] || options['title'] || generate_title_from_name(lesson_name)
+          lesson_description = options[:description] || options['description'] || "This is an example lesson with 3 levels to help you get started"
           
-          lessons_dir = site.config['level_manager']&.[]('lessons_dir') || '_lessons'
-          lessons_path = File.join(site.source, lessons_dir)
-          example_lesson_dir = File.join(lessons_path, 'example-lesson')
+          # Generate slug from name
+          lesson_slug = generate_slug(lesson_name)
           
-          if File.directory?(example_lesson_dir)
-            Jekyll.logger.warn "CreateExampleLesson:", "Example lesson already exists at: #{example_lesson_dir}"
+          # Validate lesson name
+          unless valid_lesson_name?(lesson_name)
+            Jekyll.logger.error "CreateExampleLesson:", "Invalid lesson name: #{lesson_name}"
+            Jekyll.logger.error "CreateExampleLesson:", "Lesson name must be a valid directory name."
+            return
+          end
+          
+          # Get lessons directory from config if available, otherwise use default
+          source_dir = Dir.pwd
+          config_file = File.join(source_dir, '_config.yml')
+          lessons_dir = '_lessons'
+          
+          if File.exist?(config_file)
+            begin
+              config = YAML.load_file(config_file) || {}
+              lessons_dir = config.dig('level_manager', 'lessons_dir') || '_lessons'
+            rescue => e
+              Jekyll.logger.warn "CreateExampleLesson:", "Could not read _config.yml: #{e.message}"
+            end
+          end
+          
+          lessons_path = File.join(source_dir, lessons_dir)
+          lesson_dir = File.join(lessons_path, lesson_slug)
+          
+          if File.directory?(lesson_dir)
+            Jekyll.logger.warn "CreateExampleLesson:", "Lesson already exists at: #{lesson_dir}"
             Jekyll.logger.warn "CreateExampleLesson:", "Delete it first if you want to recreate it."
             return
           end
           
-          Jekyll.logger.info "CreateExampleLesson:", "Creating example lesson..."
+          Jekyll.logger.info "CreateExampleLesson:", "Creating lesson: #{lesson_title}..."
           
           # Create directory
-          FileUtils.mkdir_p(example_lesson_dir)
+          FileUtils.mkdir_p(lesson_dir)
           
           # Create lesson.yml
           lesson_yml = <<~YAML
-name: example-lesson
-title: "Example Lesson"
-slug: example-lesson
-description: "This is an example lesson with 3 levels to help you get started"
-url: /example-lesson
+name: #{lesson_slug}
+title: "#{lesson_title}"
+slug: #{lesson_slug}
+description: "#{lesson_description}"
+url: /#{lesson_slug}
           YAML
           
-          File.write(File.join(example_lesson_dir, 'lesson.yml'), lesson_yml, encoding: 'UTF-8')
+          File.write(File.join(lesson_dir, 'lesson.yml'), lesson_yml, encoding: 'UTF-8')
           
           # Create all-levels.md with 3 example levels
           all_levels_content = <<~MARKDOWN
-# Example Lesson
+# #{lesson_title}
 
-This is an example lesson to help you understand the structure.
+#{lesson_description}
 
 ---
 
@@ -147,21 +177,39 @@ This is the final level. It brings everything together.
 {% endlevel %}
           MARKDOWN
           
-          File.write(File.join(example_lesson_dir, 'all-levels.md'), all_levels_content, encoding: 'UTF-8')
+          File.write(File.join(lesson_dir, 'all-levels.md'), all_levels_content, encoding: 'UTF-8')
           
           # Copy LESSON_PROMPT.md to project root if it exists in the gem
-          copy_lesson_prompt(site.source)
+          copy_lesson_prompt(source_dir)
           
-          Jekyll.logger.info "CreateExampleLesson:", "✅ Example lesson created at: #{example_lesson_dir}"
+          Jekyll.logger.info "CreateExampleLesson:", "✅ Lesson created at: #{lesson_dir}"
           Jekyll.logger.info "CreateExampleLesson:", "   Run 'bundle exec jekyll build' to see it in action!"
         end
         
-        def copy_lesson_prompt(site_source)
+        private
+        
+        def generate_slug(name)
+          name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/^-|-$/, '')
+        end
+        
+        def generate_title_from_name(name)
+          name.split(/[-_\s]+/).map(&:capitalize).join(' ')
+        end
+        
+        def valid_lesson_name?(name)
+          return false if name.nil? || name.empty?
+          return false if name.length > 255
+          return false if /[<>:"|?*\x00-\x1f]/.match?(name)
+          return false if name.start_with?('.') || name.end_with?('.')
+          true
+        end
+        
+        def copy_lesson_prompt(source_dir)
           # Find the gem root
           # The command file is in _plugins/commands/, so go up two levels to gem root
           gem_root = File.expand_path("../..", __dir__)
           prompt_source = File.join(gem_root, 'LESSON_PROMPT.md')
-          prompt_dest = File.join(site_source, 'LESSON_PROMPT.md')
+          prompt_dest = File.join(source_dir, 'LESSON_PROMPT.md')
           
           if File.exist?(prompt_source)
             unless File.exist?(prompt_dest)

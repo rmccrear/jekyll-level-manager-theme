@@ -16,20 +16,33 @@ output_dir_arg = ARGV[1]
 file_pattern_arg = ARGV[2]
 
 # Try to read from _config.yml if it exists
-config = {}
-config_file = File.join(__dir__, '..', '_config.yml')
+# First try current directory, then gem directory
+$config = {}
+config_file = File.join(Dir.pwd, '_config.yml')
 if File.exist?(config_file)
   begin
-    config = YAML.load_file(config_file)['level_manager'] || {}
+    $config = YAML.load_file(config_file)['level_manager'] || {}
   rescue
-    # If config file doesn't exist or has errors, use defaults
+    # If config file doesn't exist or has errors, try gem directory
+  end
+end
+
+# Fallback to gem directory config
+if $config.empty?
+  config_file = File.join(__dir__, '..', '_config.yml')
+  if File.exist?(config_file)
+    begin
+      $config = YAML.load_file(config_file)['level_manager'] || {}
+    rescue
+      # If config file doesn't exist or has errors, use defaults
+    end
   end
 end
 
 # Use config or arguments, with fallback defaults
-SOURCE_FILE = source_file_arg || config['source_file'] || File.join(__dir__, '..', '_levels', 'all-levels.md')
-OUTPUT_DIR = output_dir_arg || config['collection_dir'] || File.join(__dir__, '..', '_levels')
-FILE_PATTERN = file_pattern_arg || config['file_pattern'] || 'level-{{ number }}'
+SOURCE_FILE = source_file_arg || $config['source_file'] || File.join(__dir__, '..', '_levels', 'all-levels.md')
+OUTPUT_DIR = output_dir_arg || $config['collection_dir'] || File.join(__dir__, '..', '_levels')
+FILE_PATTERN = file_pattern_arg || $config['file_pattern'] || 'level-{{ number }}'
 
 def parse_level_attributes(attrs_str)
   attrs = {}
@@ -90,7 +103,7 @@ def build_individual_levels
     exit 1
   end
   
-  content = File.read(SOURCE_FILE)
+  content = File.read(SOURCE_FILE, encoding: 'UTF-8')
   
   # Remove front matter if present
   if content.start_with?('---')
@@ -106,9 +119,9 @@ def build_individual_levels
     exit 1
   end
   
-  # Get URL pattern from config
-  url_pattern = config['url_pattern'] || "/levels/:name.html"
-  collection_name = config['collection_name'] || 'levels'
+  # Get URL pattern from config (use $config global variable)
+  url_pattern = $config['url_pattern'] || "/levels/:name.html"
+  collection_name = $config['collection_name'] || 'levels'
   
   # Create a dictionary of levels by subtitle for cross-referencing
   levels_by_subtitle = {}
@@ -122,6 +135,9 @@ def build_individual_levels
       'url' => url
     }
   end
+  
+  # Create output directory if it doesn't exist
+  FileUtils.mkdir_p(OUTPUT_DIR) unless File.directory?(OUTPUT_DIR)
   
   puts "Found #{levels.length} levels to build..."
   
@@ -147,12 +163,12 @@ file: #{level[:file]}
       require 'liquid'
       liquid_context = Liquid::Context.new
       liquid_context['level'] = {
-        'number' => number,
-        'title' => "Level #{number}",
-        'subtitle' => attrs[:subtitle] || attrs['subtitle'] || ''
+        'number' => level[:number],
+        'title' => level[:title],
+        'subtitle' => level[:subtitle]
       }
-      liquid_context['level_number'] = number
-      liquid_context['level_subtitle'] = attrs[:subtitle] || attrs['subtitle'] || ''
+      liquid_context['level_number'] = level[:number]
+      liquid_context['level_subtitle'] = level[:subtitle]
       
       # Make all levels available for cross-referencing
       liquid_context['levels_by_subtitle'] = levels_by_subtitle
@@ -180,8 +196,8 @@ file: #{level[:file]}
     # Combine front matter, auto-generated heading, and content
     file_content = front_matter + heading + "\n\n" + content + "\n"
     
-    # Write file
-    File.write(filepath, file_content)
+    # Write file with UTF-8 encoding
+    File.write(filepath, file_content, encoding: 'UTF-8')
     
     puts "  ✓ Generated #{filename}"
   end
